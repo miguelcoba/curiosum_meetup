@@ -7,15 +7,18 @@ defmodule CuriosumMeetup.Application do
 
   @impl true
   def start(_type, _args) do
+    topologies = Application.get_env(:libcluster, :topologies) || []
+
     children = [
       # Start the Telemetry supervisor
       CuriosumMeetupWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: CuriosumMeetup.PubSub},
       # Start the Endpoint (http/https)
-      CuriosumMeetupWeb.Endpoint
+      CuriosumMeetupWeb.Endpoint,
       # Start a worker by calling: CuriosumMeetup.Worker.start_link(arg)
       # {CuriosumMeetup.Worker, arg}
+      {Cluster.Supervisor, [topologies, [name: CuriosumMeetup.ClusterSupervisor]]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
